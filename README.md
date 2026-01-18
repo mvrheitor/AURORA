@@ -1,7 +1,12 @@
-# AURORA
+# AURORA v1.0.0
 Autonomous Utility for Reasoning, Operations & Rapid Assistance
 
-Aqui vou documentar cada etapa do meu projeto de criar uma IA como o Jarvis para controlar meu computador, enquanto ainda aprendo a usar o Git e o GitHub.
+Nesta versão, a AURORA é um chatbot simples, mas com personalidade, baseado em LLM, rodando no terminal.
+
+## Funcionalidades
+- Chat interativo via terminal
+- Prompt do system configurável via arquivo externo
+- Uso de variáveis de ambiente para a API
 
 ---
 
