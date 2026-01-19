@@ -1,12 +1,32 @@
-# AURORA v1.0.0
+# AURORA v2.0.0  
 Autonomous Utility for Reasoning, Operations & Rapid Assistance
 
-Nesta versão, a AURORA é um chatbot simples, mas com personalidade, baseado em LLM, rodando no terminal.
+AURORA é um assistente inteligente inspirado em sistemas como o Jarvis, capaz não apenas de conversar, mas também de executar ações reais no sistema operacional através de ferramentas (tools).
 
-## Funcionalidades
+A partir da versão 2.0.0, a AURORA deixa de ser apenas um chatbot e passa a atuar como um **assistente autônomo de terminal**.
+
+---
+
+## ⚠ Avisos importantes
+
+- Este projeto executa comandos reais no sistema operacional.  
+  Use apenas em ambientes controlados e por sua conta e risco.
+
+- As tools foram desenvolvidas exclusivamente para sistemas Linux.  
+  O funcionamento em Windows ou macOS não é garantido e exigirá adaptações no código.
+
+---
+
+## Principais funcionalidades
+
 - Chat interativo via terminal
-- Prompt do system configurável via arquivo externo
-- Uso de variáveis de ambiente para a API
+- Execução de comandos reais no sistema operacional
+- Sistema de tools integrado à LLM
+- Loop que permite que AURORA decida executar múltiplas tools em sequência
+- Exibição do pensamento da AURORA
+- Exibição das tools chamadas e seus argumentos
+- Prompt configurável externamente
+- Estrutura modular de projeto (src, tools, schemas, registry)
 
 ---
 
@@ -24,3 +44,6 @@ Coloque sua chave da Groq no .env.
 ```
 python run.py
 ```
+
+> [!tip] DIca
+> Para uma melhor experiência, altere informações como nome e sistema operacional no prompt.
