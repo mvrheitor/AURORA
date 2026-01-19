@@ -17,9 +17,16 @@ def enviar_msg(client, mensagens, tools):
         tool_choice="auto"
     )
 
+    print("\n=== PENSAMENTO: ")
+    print(resposta.choices[0].message.reasoning) # mostra o pensamento da Aurora
+
     tool_calls = resposta.choices[0].message.tool_calls
 
     if tool_calls:
+        print("\n=== TOOL CHAMADA:")
+        for i in tool_calls:
+            print(f"- {i.function.name} --> {i.function.arguments}") # mostra a função chamada, bem como os argumentos
+
         mensagens.append(resposta.choices[0].message)
 
         for tool_call in tool_calls:
