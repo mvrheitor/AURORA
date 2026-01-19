@@ -1,4 +1,4 @@
-# AURORA v2.0.0  
+# AURORA v2.0.1
 Autonomous Utility for Reasoning, Operations & Rapid Assistance
 
 AURORA é um assistente inteligente inspirado em sistemas como o Jarvis, capaz não apenas de conversar, mas também de executar ações reais no sistema operacional através de ferramentas (tools).
