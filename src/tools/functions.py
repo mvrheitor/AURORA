@@ -19,3 +19,17 @@ def criar_arquivo(path='./untitled'):
         return json.dumps({'ok': True, 'message': f'File {path} created successfully'})
     except subprocess.CalledProcessError as e:
         return json.dumps({'ok': False, 'error': e.stderr})
+    
+def executar_comando(command):
+    try:
+        saida = subprocess.run(
+            command,
+            shell=True,  # permite usar o shell
+            stderr=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            text=True,
+            check=True
+        )
+        return json.dumps({'ok': True, 'output': saida.stdout})
+    except subprocess.CalledProcessError as e:
+        return json.dumps({'ok': False, 'erro': e.stderr})

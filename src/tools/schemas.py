@@ -41,5 +41,22 @@ tools = [
                 },
             }
         }
+},
+{
+    'type': 'function',
+    'function': {
+        'name': 'executar_comando',
+        'description': 'Executa um comando específico no diretório atual no sistema.',
+        'parameters': {
+            'type': 'object',
+            'properties': {
+                'command': {
+                    'type': 'string',
+                    'description': 'O comando a ser executado no sistema. Exemplo: ls -la.'
+                    }
+                },
+            'required': ['command'],
+            }
+        }
 }
 ]
