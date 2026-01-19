@@ -3,6 +3,23 @@ from src.tools.schemas import tools
 from src.tools.registry import funcoes_disponiveis
 import json
 
+import sounddevice as sd
+import numpy as np
+from scipy.io.wavfile import write
+import threading
+
+samplerate = 44100
+arquivo_saida = "./temp/temp.wav"
+
+def gravar():
+    #Função que coleta áudio em frames enquanto 'gravando' é True
+    global frames, gravando
+    frames = []
+    with sd.InputStream(samplerate=samplerate, channels=1, dtype="int16") as stream:
+        while gravando:
+            data, _ = stream.read(1024)
+            frames.append(data.copy())
+
 def carregar_prompt():
     with open("src/prompt.txt", "r", encoding="utf-8") as f:
         return f.read()
@@ -66,11 +83,29 @@ def iniciar_chat():
     print("\nAurora iniciada. Digite 'sair' para encerrar.")
 
     while True:
-        prompt = input("\nDigite sua mensagem: ")
+        prompt = input("\nPressione Enter para falar.")
 
-        if prompt.lower() == "sair":
-            print("Encerrando Aurora...")
-            break
+        gravando = True
+        thread = threading.Thread(target=gravar)
+        thread.start()
+
+        input("Ouvindo...")
+        gravando = False
+        thread.join()
+
+        # Concatena frames e salva em arquivo
+        audio = np.concatenate(frames, axis=0)
+        write(arquivo_saida, samplerate, audio)
+
+        with open(arquivo_saida, "rb") as f:
+            transcricao = client.audio.transcriptions.create(
+                model="whisper-large-v3",
+                file=f,
+                language='pt'
+            )
+        
+        prompt = transcricao.text
+        print("Transcrição:", prompt)
 
         mensagens.append({'role': 'user', 'content': prompt})
         resposta = enviar_msg(client, mensagens, tools)
