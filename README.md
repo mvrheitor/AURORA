@@ -1,9 +1,9 @@
-# AURORA v3.0.1
+# AURORA v3.1.0
 Autonomous Utility for Reasoning, Operations & Rapid Assistance
 
 AURORA é um assistente inteligente inspirado em sistemas como o Jarvis, capaz não apenas de conversar, mas também de executar ações reais no sistema operacional através de ferramentas (tools).
 
-A partir da versão 3.0.0, a Aurora suporta reconhecimento de voz, permitindo interação por áudio.
+A partir da versão 3.1.0, a Aurora suporta alternar entre comunicação por voz e por texto.
 
 ---
 
@@ -50,6 +50,5 @@ python run.py
 > Para uma melhor experiência, altere informações como nome e sistema operacional no prompt.
 
 ## Requisitos:
-- Microfone funcional
 - PortAudio instalado no sistema
 - API da Groq (grátis)

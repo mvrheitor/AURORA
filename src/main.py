@@ -77,19 +77,23 @@ def iniciar_chat():
 
     os.system("clear")
 
-    print("\nAurora iniciada. Digite 'sair' para encerrar.")
+    print("Aurora iniciada.")
 
     while True:
-        prompt = input("\nPressione Enter para falar.")
-        gravador.iniciar()
+        prompt = input("\nPressione Enter para falar ou digite sua mensagem.\n")
+        
+        if prompt:
+            pass
+        else:
+            gravador.iniciar()
 
-        input("Ouvindo... pressione Enter para parar.")
-        audio = gravador.parar()
+            input("Ouvindo... pressione Enter para parar.")
+            audio = gravador.parar()
 
-        write(arquivo_saida, samplerate, audio)
+            write(arquivo_saida, samplerate, audio)
 
-        prompt = transcrever_audio(client, arquivo_saida)
-        print("Transcrição:", prompt)
+            prompt = transcrever_audio(client, arquivo_saida)
+            print("Transcrição:", prompt)
 
         mensagens.append({'role': 'user', 'content': prompt})
         resposta = enviar_msg(client, mensagens, tools)

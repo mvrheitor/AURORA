@@ -1,4 +1,6 @@
-## [3.0.1] - 2026-01-20
+## [3.1.0] - 2026-01-20
 
-### Changed
-- Prompt aprimorado para lidar com erros na transcrição.
+### Added
+- Modo híbrido de entrada:
+  - Se o usuário digitar, a mensagem é enviada como texto.
+  - Se o usuário apenas pressionar Enter, a Aurora entra em modo de gravação de voz.
