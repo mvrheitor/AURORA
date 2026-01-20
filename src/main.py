@@ -1,24 +1,12 @@
 from src.config import *
 from src.tools.schemas import tools
 from src.tools.registry import funcoes_disponiveis
-import json
-
-import sounddevice as sd
-import numpy as np
+from src.audio.recorder import Gravador
+from src.audio.transcription import transcrever_audio
 from scipy.io.wavfile import write
-import threading
-
-samplerate = 44100
-arquivo_saida = "./temp/temp.wav"
-
-def gravar():
-    #Função que coleta áudio em frames enquanto 'gravando' é True
-    global frames, gravando
-    frames = []
-    with sd.InputStream(samplerate=samplerate, channels=1, dtype="int16") as stream:
-        while gravando:
-            data, _ = stream.read(1024)
-            frames.append(data.copy())
+from pathlib import Path
+import json
+import os
 
 def carregar_prompt():
     with open("src/prompt.txt", "r", encoding="utf-8") as f:
@@ -72,7 +60,16 @@ def enviar_msg(client, mensagens, tools):
 
 def iniciar_chat():
     client = get_client()
+
+    gravador = Gravador()
+    samplerate = 44100
     
+    BASE_DIR = Path(__file__).resolve().parent
+    TEMP_DIR = BASE_DIR / "audio"
+    TEMP_DIR.mkdir(exist_ok=True)
+
+    arquivo_saida = TEMP_DIR / "temp.wav"
+
     mensagens = [{
         'role': 'system',
         'content': carregar_prompt()
@@ -84,27 +81,15 @@ def iniciar_chat():
 
     while True:
         prompt = input("\nPressione Enter para falar.")
+        
+        gravador.iniciar()
 
-        gravando = True
-        thread = threading.Thread(target=gravar)
-        thread.start()
+        input("Ouvindo... pressione Enter para parar.")
+        audio = gravador.parar()
 
-        input("Ouvindo...")
-        gravando = False
-        thread.join()
-
-        # Concatena frames e salva em arquivo
-        audio = np.concatenate(frames, axis=0)
         write(arquivo_saida, samplerate, audio)
 
-        with open(arquivo_saida, "rb") as f:
-            transcricao = client.audio.transcriptions.create(
-                model="whisper-large-v3",
-                file=f,
-                language='pt'
-            )
-        
-        prompt = transcricao.text
+        prompt = transcrever_audio(client, arquivo_saida)
         print("Transcrição:", prompt)
 
         mensagens.append({'role': 'user', 'content': prompt})
