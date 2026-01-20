@@ -19,7 +19,7 @@ class TerminalSession:
         self.reader_thread.start() # fica escutando a saída do shell assim que ele é criado
 
     def send(self, comando):
-        self.process.stdin.write(f"{comando} && echo {MARKER}\n") # o bash só executa se der Enter
+        self.process.stdin.write(f"{comando} ; echo {MARKER}\n") # o ';' faz a mesma coisa que o '&&', mas ele executa mesmo que o primeiro comando dê erro | o bash só executa se der Enter
         self.process.stdin.flush() # força o comando a ser enviado (as vezes fica esperando)
     def _ler_saida(self):
         for linha in self.process.stdout:
