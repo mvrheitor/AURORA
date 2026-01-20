@@ -1,7 +1,13 @@
-## [2.0.1] - 2026-01-19
+## [3.0.0] - 2026-01-20
+
+### Added
+- Reconhecimento de voz com captura de áudio pelo microfone
+- Transcrição automática de áudio usando Whisper
+- Novo módulo de áudio (recorder e transcription)
 
 ### Changed
-- Pequena atualização no prompt da AURORA para que ela evite executar comando destrutivos sem antes entender o contexto por trás. Se entender, executa. Do contrário, pede confirmação. Algo que gosto de chamar de "sinto de segurança".
+- Fluxo principal agora é por voz
+- Estrutura de arquivos reorganizada para suportar áudio
 
-### Security
-- Redução de risco de execução acidental de comandos perigosos
+### Dependencies
+- Adicionados: sounddevice, numpy, scipy

@@ -1,9 +1,9 @@
-# AURORA v2.0.1
+# AURORA v3.0.0
 Autonomous Utility for Reasoning, Operations & Rapid Assistance
 
 AURORA é um assistente inteligente inspirado em sistemas como o Jarvis, capaz não apenas de conversar, mas também de executar ações reais no sistema operacional através de ferramentas (tools).
 
-A partir da versão 2.0.0, a AURORA deixa de ser apenas um chatbot e passa a atuar como um **assistente autônomo de terminal**.
+A partir da versão 3.0.0, a Aurora suporta reconhecimento de voz, permitindo interação por áudio.
 
 ---
 
@@ -20,6 +20,7 @@ A partir da versão 2.0.0, a AURORA deixa de ser apenas um chatbot e passa a atu
 ## Principais funcionalidades
 
 - Chat interativo via terminal
+- Reconhecimento de voz com captura de áudio pelo microfone e transcrição com IA
 - Execução de comandos reais no sistema operacional
 - Sistema de tools integrado à LLM
 - Loop que permite que AURORA decida executar múltiplas tools em sequência
@@ -45,5 +46,10 @@ Coloque sua chave da Groq no .env.
 python run.py
 ```
 
-> [!tip] DIca
+> [!tip] Dica
 > Para uma melhor experiência, altere informações como nome e sistema operacional no prompt.
+
+## Requisitos:
+- Microfone funcional
+- PortAudio instalado no sistema
+- API da Groq (grátis)

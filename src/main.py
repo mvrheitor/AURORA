@@ -1,7 +1,12 @@
 from src.config import *
 from src.tools.schemas import tools
 from src.tools.registry import funcoes_disponiveis
+from src.audio.recorder import Gravador
+from src.audio.transcription import transcrever_audio
+from scipy.io.wavfile import write
+from pathlib import Path
 import json
+import os
 
 def carregar_prompt():
     with open("src/prompt.txt", "r", encoding="utf-8") as f:
@@ -55,7 +60,16 @@ def enviar_msg(client, mensagens, tools):
 
 def iniciar_chat():
     client = get_client()
+
+    gravador = Gravador()
+    samplerate = 44100
     
+    BASE_DIR = Path(__file__).resolve().parent
+    TEMP_DIR = BASE_DIR / "audio"
+    TEMP_DIR.mkdir(exist_ok=True)
+
+    arquivo_saida = TEMP_DIR / "temp.wav"
+
     mensagens = [{
         'role': 'system',
         'content': carregar_prompt()
@@ -66,11 +80,16 @@ def iniciar_chat():
     print("\nAurora iniciada. Digite 'sair' para encerrar.")
 
     while True:
-        prompt = input("\nDigite sua mensagem: ")
+        prompt = input("\nPressione Enter para falar.")
+        gravador.iniciar()
 
-        if prompt.lower() == "sair":
-            print("Encerrando Aurora...")
-            break
+        input("Ouvindo... pressione Enter para parar.")
+        audio = gravador.parar()
+
+        write(arquivo_saida, samplerate, audio)
+
+        prompt = transcrever_audio(client, arquivo_saida)
+        print("Transcrição:", prompt)
 
         mensagens.append({'role': 'user', 'content': prompt})
         resposta = enviar_msg(client, mensagens, tools)
