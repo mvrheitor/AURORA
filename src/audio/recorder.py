@@ -19,7 +19,7 @@ class Gravador:
         self.thread.join()
         return np.concatenate(self.frames, axis=0)
 
-    def _gravar(self):
+    def _gravar(self): # _ antes da função significa que ela não deve ser chamada fora da classe (é uma convenção em python)
         with sd.InputStream(samplerate=self.samplerate, channels=1, dtype="int16") as stream:
             while self.gravando:
                 data, _ = stream.read(1024)

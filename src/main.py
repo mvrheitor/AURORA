@@ -81,7 +81,6 @@ def iniciar_chat():
 
     while True:
         prompt = input("\nPressione Enter para falar.")
-        
         gravador.iniciar()
 
         input("Ouvindo... pressione Enter para parar.")
