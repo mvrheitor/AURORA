@@ -8,8 +8,8 @@ from pathlib import Path
 import json
 import os
 
-def carregar_prompt():
-    with open("src/prompt.txt", "r", encoding="utf-8") as f:
+def carregar_prompt(BASE_DIR):
+    with open(f"{BASE_DIR}/prompt.txt", "r", encoding="utf-8") as f:
         return f.read()
 
 def enviar_msg(client, mensagens, tools):
@@ -72,7 +72,7 @@ def iniciar_chat():
 
     mensagens = [{
         'role': 'system',
-        'content': carregar_prompt()
+        'content': carregar_prompt(BASE_DIR)
     }]
 
     os.system("clear")
