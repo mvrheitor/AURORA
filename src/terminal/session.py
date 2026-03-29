@@ -1,6 +1,7 @@
 import subprocess
 import threading
 import time
+import json
 
 MARKER = "__AURORA_CMD_DONE__" # código pra saber quando um comando terminou
 
@@ -86,29 +87,55 @@ if __name__ == "__main__":
     t = TerminalSession()
     print("Terminal persistente iniciado. Digite 'sair' para encerrar.\n")
 
-    while True:
-        comando = input("[Você] Digite um comando: ")
-        
-        if comando.lower() == 'sair':
+    def executar_comando(command):
+        if command.lower() == 'sair':
             t.close()
-            break
+        
+        output = t.send_command(command)
+        
+        if t.status == "waiting_input":
+            screen = {
+                'status': t.status,
+                'observation': 'O terminal parece estar esperando uma resposta ou rodando algo longo.',
+                'output': output
+            }
+        elif t.status == "free":
+            screen = {
+                'status': t.status,
+                'output': output
+            }
+        return json.dumps(screen, indent=4)
+    
+    def enviar_input(text):
+        output = t.send_input(text)
+        
+        if t.status == "waiting_input":
+            screen = {
+                'status': t.status,
+                'observation': 'O terminal parece estar esperando uma resposta ou rodando algo longo.',
+                'output': output
+            }
+        elif t.status == "free":
+            screen = {
+                'status': t.status,
+                'output': output
+            }
+        return json.dumps(screen, indent=4)
 
-        # Envia o comando e pega a saída
-        saida = t.send_command(comando)
 
-        print(f"\n--- [Status: {t.status}] ---")
-        print(f"{saida}")
-        print("------------------------\n")
+    
 
-        while t.status == "waiting_input":
-            print("⚠️ O terminal parece estar esperando uma resposta ou rodando algo longo.")
-            resposta = input("[Input para o Terminal] (ou aperte Enter para ignorar): ")
-            
-            if not resposta:
-                break
-                
-            nova_saida = t.send_input(resposta)
-            
-            print(f"\n--- [Status Atualizado: {t.status}] ---")
-            print(f"{nova_saida}")
-            print("--------------------------------\n")
+    while True:
+        print("[1] - Enviar comando")
+        print("[2] - Enviar input")
+        escolha = int(input("Escolha uma opção: "))
+        
+
+        if escolha == 1:
+            comando = input("Digite o comando: ")
+            screen = executar_comando(comando)
+            print(screen)
+        elif escolha == 2:
+            text = input("Digite o input: ")
+            screen = enviar_input(text)
+            print(screen)
