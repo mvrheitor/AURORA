@@ -2,43 +2,52 @@ import subprocess
 import threading
 import time
 
-MARKER = "__AURORA_CMD_DONE__"
+MARKER = "__AURORA_CMD_DONE__" # código pra saber quando um comando terminou
 
 class TerminalSession:
     def __init__(self, shell="/bin/bash"):
+        # inicia um terminal de verdade (o bash)
+        # subprocess.popen deixa o processo rodando, diferente do .run
+        # popen retorna um objeto do processo, não apenas o output
         self.process = subprocess.Popen(
             [shell],
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
-            text=True,
-            bufsize=1
+            text=True, # se for falso, vai retornar bits e será necessário converter depois
+            bufsize=1 # buffer de linha - menor valor possível para text=True ; faz com que a saída seja liberada linha por linha, o mais rápido possível, sem segurar blocos de texto
         )
         
-        self.buffer = ""
-        self.status = "free"  # Estados possíveis: 'free', 'busy', 'waiting_input'
+        self.buffer = "" # a "tela" do terminal ; é aqui que vai ficar o texto da saída
+        self.status = "free"  # estados possíveis: 'free', 'busy', 'waiting_input'
 
+        # uma thread para ficar lendo o terminal e salvando no buffer:
         self.reader_thread = threading.Thread(target=self._ouvir_terminal, daemon=True)
         self.reader_thread.start()
 
     def _ouvir_terminal(self):
+        # função para ler 1 caractere da saída por vez e ir adicionando ao buffer (a tela) ; 
         while True:
             char = self.process.stdout.read(1)
             if not char:
                 break
             self.buffer += char
+        # ler um caractere ao invés de uma linha por vez serve para detectar o último output antes de um input que não teve uma quebra de linha. Ex.: input("Digite algo: ")
 
     def send_command(self, command, timeout=2.0):
-        self.buffer = ""
-        self.status = "busy"
+        # função para enviar comandos ao terminal
+        self.buffer = "" # limpa a "tela", para ler apenas a saída do comando atual
+        self.status = "busy" # define o estado como ocupado
 
-        full_command = f"{command} ; echo {MARKER}\n"
-        self.process.stdin.write(full_command)
-        self.process.stdin.flush()
+        full_command = f"{command} ; echo {MARKER}\n" # envia o comando e retorna o marcador no final do output para sabermos quando o comando acabou
+        self.process.stdin.write(full_command) # escreve o comando no input do terminal (stdin)
+        self.process.stdin.flush() # força o envio
 
         return self._esperar_resultado(timeout)
 
     def send_input(self, text, timeout=2.0):
+        # precisamos de uma função separada apenas para enviar texto quando o terminal pede algum input, pois aqui não podemos enviar o echo MARKER
+        # ela faz a mesma coisa que a send_command, mas não envia o MARKER
         self.buffer = ""
         self.process.stdin.write(text + "\n")
         self.process.stdin.flush()
@@ -47,24 +56,29 @@ class TerminalSession:
         return self._esperar_resultado(timeout)
 
     def _esperar_resultado(self, timeout):
+        # função para ler/verificar a "tela" (o buffer)
+        # a função de ouvir o terminal salva a saída no buffer. Esta, por sua vez, verifica o buffer
+        start_time = time.time() # define o tempo que começou, para poder parar quando atingir o timeout
 
-        start_time = time.time()
-
+        # fica verificando se o nosso marcador já apareceu no buffer
         while True:
             if MARKER in self.buffer:
-                self.status = "free"
-                self.buffer = self.buffer.replace(MARKER + "\n", "").replace(MARKER, "")
+                self.status = "free" # se estiver, o comando terminou e o terminal está livre
+                self.buffer = self.buffer.replace(MARKER + "\n", "").replace(MARKER, "") # remove o marcador da tela, para podermos enviá-la à AURORA sem que ela se confunda
                 break
-
+            
+            # verifica se o comando está executando a mais tempo do que o limite (timeout) e ainda não apareceu o marcador
             if time.time() - start_time > timeout:
+                # se sim, pode ser que o terminal esteja aguardando por um input, ou apenas esteja rodando um comando longo
                 self.status = "waiting_input"
-                break
+                break # para por causa do timeout e para avisar a AURORA
 
-            time.sleep(0.1)
+            time.sleep(0.1) # espera por um décimo de segundo para não consumir 100% da CPU
 
-        return self.buffer.strip()
+        return self.buffer.strip() # retorna o que há na tela (buffer)
 
     def close(self):
+        # uma função para fechar o terminal. Porque sim.
         self.process.terminate()
 
 
