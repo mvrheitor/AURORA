@@ -111,7 +111,7 @@ if __name__ == "__main__":
             'output': output
         }
 
-        return json.dumps(screen, indent=4)
+        return json.dumps(screen, ensure_ascii=False, indent=4)
     
     def enviar_input(text):
         output = t.send_input(text)
@@ -122,7 +122,7 @@ if __name__ == "__main__":
             'output': output
         }
 
-        return json.dumps(screen, indent=4)
+        return json.dumps(screen, ensure_ascii=False, indent=4)
     
     def ler_terminal():
         output = t.read_terminal()
@@ -133,7 +133,7 @@ if __name__ == "__main__":
             'output': output
         }
 
-        return json.dumps(screen, indent=4)
+        return json.dumps(screen, ensure_ascii=False, indent=4)
 
     
 
