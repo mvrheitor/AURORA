@@ -21,6 +21,7 @@ class TerminalSession:
         
         self.buffer = "" # a "tela" do terminal ; é aqui que vai ficar o texto da saída
         self.status = "free"  # estados possíveis: 'free', 'busy', 'waiting_input'
+        self.obs = "" # observação para AURORA
 
         # uma thread para ficar lendo o terminal e salvando no buffer:
         self.reader_thread = threading.Thread(target=self._ouvir_terminal, daemon=True)
@@ -39,6 +40,7 @@ class TerminalSession:
         # função para enviar comandos ao terminal
         self.buffer = "" # limpa a "tela", para ler apenas a saída do comando atual
         self.status = "busy" # define o estado como ocupado
+        self.obs = ""
 
         full_command = f"{command} ; echo {MARKER}\n" # envia o comando e retorna o marcador no final do output para sabermos quando o comando acabou
         self.process.stdin.write(full_command) # escreve o comando no input do terminal (stdin)
@@ -53,6 +55,7 @@ class TerminalSession:
         self.process.stdin.write(text + "\n")
         self.process.stdin.flush()
         self.status = "busy"
+        self.obs = ""
         
         return self._esperar_resultado(timeout)
 
@@ -65,6 +68,7 @@ class TerminalSession:
         while True:
             if MARKER in self.buffer:
                 self.status = "free" # se estiver, o comando terminou e o terminal está livre
+                self.obs = ""
                 self.buffer = self.buffer.replace(MARKER + "\n", "").replace(MARKER, "") # remove o marcador da tela, para podermos enviá-la à AURORA sem que ela se confunda
                 break
             
@@ -72,12 +76,24 @@ class TerminalSession:
             if time.time() - start_time > timeout:
                 # se sim, pode ser que o terminal esteja aguardando por um input, ou apenas esteja rodando um comando longo
                 self.status = "waiting_input"
+                self.obs = "O terminal parece estar esperando uma resposta ou rodando algo longo."
                 break # para por causa do timeout e para avisar a AURORA
 
             time.sleep(0.1) # espera por um décimo de segundo para não consumir 100% da CPU
 
         return self.buffer.strip() # retorna o que há na tela (buffer)
 
+    def read_terminal(self, timeout=1.0):
+        # Uma função para retornar o que há no buffer sem apagar o que tinha antes
+        # Somente retorna o que há no buffer se o status == waiting_input, pois se não ele definiria o status como waiting_input mesmo quando estivesse free
+        # Se você rodar a função _esperar_resultado quando o status é free, ou seja, quando o marcador já passou pelo buffer e foi removido, ela verificará se o marcador está no buffer, não o encontrará e definirá o status para waiting_input
+        if self.status == "waiting_input":
+            return self._esperar_resultado(timeout)
+        else:
+            return ""
+        # Foi necessário desenvolver essa função para eliminar "pontos cegos", ou seja, respostas de inputs que demoram mais que o timeout
+            
+    
     def close(self):
         # uma função para fechar o terminal. Porque sim.
         self.process.terminate()
@@ -85,49 +101,46 @@ class TerminalSession:
 
 if __name__ == "__main__":
     t = TerminalSession()
-    print("Terminal persistente iniciado. Digite 'sair' para encerrar.\n")
 
     def executar_comando(command):
-        if command.lower() == 'sair':
-            t.close()
-        
         output = t.send_command(command)
         
-        if t.status == "waiting_input":
-            screen = {
-                'status': t.status,
-                'observation': 'O terminal parece estar esperando uma resposta ou rodando algo longo.',
-                'output': output
-            }
-        elif t.status == "free":
-            screen = {
-                'status': t.status,
-                'output': output
-            }
+        screen = {
+            'status': t.status,
+            'observation': t.obs,
+            'output': output
+        }
+
         return json.dumps(screen, indent=4)
     
     def enviar_input(text):
         output = t.send_input(text)
         
-        if t.status == "waiting_input":
-            screen = {
-                'status': t.status,
-                'observation': 'O terminal parece estar esperando uma resposta ou rodando algo longo.',
-                'output': output
-            }
-        elif t.status == "free":
-            screen = {
-                'status': t.status,
-                'output': output
-            }
-        return json.dumps(screen, indent=4)
+        screen = {
+            'status': t.status,
+            'observation': t.obs,
+            'output': output
+        }
 
+        return json.dumps(screen, indent=4)
+    
+    def ler_terminal():
+        output = t.read_terminal()
+
+        screen = {
+            'status': t.status,
+            'observation': t.obs,
+            'output': output
+        }
+
+        return json.dumps(screen, indent=4)
 
     
 
     while True:
         print("[1] - Enviar comando")
         print("[2] - Enviar input")
+        print("[3] - Ler terminal")
         escolha = int(input("Escolha uma opção: "))
         
 
@@ -139,3 +152,5 @@ if __name__ == "__main__":
             text = input("Digite o input: ")
             screen = enviar_input(text)
             print(screen)
+        elif escolha == 3:
+            print(ler_terminal())
