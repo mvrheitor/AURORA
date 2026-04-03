@@ -1,7 +1,6 @@
 import subprocess
 import threading
 import time
-import json
 
 MARKER = "__AURORA_CMD_DONE__" # código pra saber quando um comando terminou
 
@@ -92,65 +91,3 @@ class TerminalSession:
         else:
             return ""
         # Foi necessário desenvolver essa função para eliminar "pontos cegos", ou seja, respostas de inputs que demoram mais que o timeout
-            
-    
-    def close(self):
-        # uma função para fechar o terminal. Porque sim.
-        self.process.terminate()
-
-
-if __name__ == "__main__":
-    t = TerminalSession()
-
-    def executar_comando(command):
-        output = t.send_command(command)
-        
-        screen = {
-            'status': t.status,
-            'observation': t.obs,
-            'output': output
-        }
-
-        return json.dumps(screen, ensure_ascii=False, indent=4)
-    
-    def enviar_input(text):
-        output = t.send_input(text)
-        
-        screen = {
-            'status': t.status,
-            'observation': t.obs,
-            'output': output
-        }
-
-        return json.dumps(screen, ensure_ascii=False, indent=4)
-    
-    def ler_terminal():
-        output = t.read_terminal()
-
-        screen = {
-            'status': t.status,
-            'observation': t.obs,
-            'output': output
-        }
-
-        return json.dumps(screen, ensure_ascii=False, indent=4)
-
-    
-
-    while True:
-        print("[1] - Enviar comando")
-        print("[2] - Enviar input")
-        print("[3] - Ler terminal")
-        escolha = int(input("Escolha uma opção: "))
-        
-
-        if escolha == 1:
-            comando = input("Digite o comando: ")
-            screen = executar_comando(comando)
-            print(screen)
-        elif escolha == 2:
-            text = input("Digite o input: ")
-            screen = enviar_input(text)
-            print(screen)
-        elif escolha == 3:
-            print(ler_terminal())
