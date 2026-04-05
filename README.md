@@ -1,9 +1,9 @@
-# AURORA v3.1.1
+# AURORA v4.0.0
 Autonomous Utility for Reasoning, Operations & Rapid Assistance
 
 AURORA é um assistente inteligente inspirado em sistemas como o Jarvis, capaz não apenas de conversar, mas também de executar ações reais no sistema operacional através de ferramentas (tools).
 
-A partir da versão 3.1.0, a Aurora suporta alternar entre comunicação por voz e por texto.
+Na versão 4.0.0, foi introduzido o Terminal Stateful, permitindo que a IA mantenha uma sessão contínua e interativa com o sistema.
 
 ---
 
@@ -22,6 +22,7 @@ A partir da versão 3.1.0, a Aurora suporta alternar entre comunicação por voz
 - Chat interativo via terminal
 - Reconhecimento de voz com captura de áudio pelo microfone e transcrição com IA
 - Execução de comandos reais no sistema operacional
+- Interatividade com Processos
 - Sistema de tools integrado à LLM
 - Loop que permite que AURORA decida executar múltiplas tools em sequência
 - Exibição do pensamento da AURORA
@@ -47,7 +48,7 @@ python run.py
 ```
 
 > [!tip] Dica
-> Para uma melhor experiência, altere informações como nome e sistema operacional no prompt.
+> Para uma melhor experiência, edite o arquivo src/prompt.txt para incluir informações como seu nome, preferências, distribuição Linux atual e formato desejado das respostas.
 
 ## Requisitos:
 - PortAudio instalado no sistema
