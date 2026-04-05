@@ -1,4 +1,4 @@
-## [4.0.0] - 2026-04-05
+## [4.0.1] - 2026-04-05
 
 ### Changed
 - **Arquitetura do Terminal:** Transição de execuções efêmeras para uma arquitetura stateful.
