@@ -78,7 +78,7 @@ def iniciar_chat():
 
     mensagens = [{
         'role': 'system',
-        'content': carregar_prompt(BASE_DIR)
+        'content': carregar_prompt()
     }]
 
     os.system("clear")
