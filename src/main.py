@@ -10,7 +10,9 @@ import json
 import os
 
 def carregar_prompt():
-    with open("src/prompt.txt", "r", encoding="utf-8") as f:
+    BASE_DIR = Path(__file__).resolve().parent
+    PROMPT_FILE = BASE_DIR / "prompt.txt"
+    with open(PROMPT_FILE, "r", encoding="utf-8") as f:
         return f.read()
 
 def enviar_msg(client, mensagens, terminal, tools):
