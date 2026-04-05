@@ -1,8 +1,7 @@
-from .functions import pwd_ls, criar_pasta, criar_arquivo, executar_comando
+from .functions import executar_comando, enviar_input, ler_terminal
 
 funcoes_disponiveis = {
-    "pwd_ls": pwd_ls,
-    "criar_pasta": criar_pasta,
-    "criar_arquivo": criar_arquivo,
     "executar_comando": executar_comando,
+    "enviar_input": enviar_input,
+    "ler_terminal": ler_terminal
 }

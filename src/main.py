@@ -1,4 +1,5 @@
 from src.config import *
+from src.terminal.session import TerminalSession
 from src.tools.schemas import tools
 from src.tools.registry import funcoes_disponiveis
 from src.audio.recorder import Gravador
@@ -8,11 +9,13 @@ from pathlib import Path
 import json
 import os
 
-def carregar_prompt(BASE_DIR):
-    with open(f"{BASE_DIR}/prompt.txt", "r", encoding="utf-8") as f:
+def carregar_prompt():
+    BASE_DIR = Path(__file__).resolve().parent
+    PROMPT_FILE = BASE_DIR / "prompt.txt"
+    with open(PROMPT_FILE, "r", encoding="utf-8") as f:
         return f.read()
 
-def enviar_msg(client, mensagens, tools):
+def enviar_msg(client, mensagens, terminal, tools):
     resposta = client.chat.completions.create(
         messages=mensagens,
         model="openai/gpt-oss-120b",
@@ -37,6 +40,7 @@ def enviar_msg(client, mensagens, tools):
         for tool_call in tool_calls:
             function_to_call = funcoes_disponiveis[tool_call.function.name]
             function_args = json.loads(tool_call.function.arguments)
+            function_args['terminal'] = terminal
 
             if function_args:
                 function_response = function_to_call(**function_args)
@@ -50,7 +54,7 @@ def enviar_msg(client, mensagens, tools):
                 "content": function_response,
             })
 
-        return enviar_msg(client, mensagens, tools)
+        return enviar_msg(client, mensagens, terminal, tools)
 
     mensagens.append({
         "role": "assistant",
@@ -69,6 +73,8 @@ def iniciar_chat():
     TEMP_DIR.mkdir(exist_ok=True)
 
     arquivo_saida = TEMP_DIR / "temp.wav"
+
+    terminal = TerminalSession()
 
     mensagens = [{
         'role': 'system',
@@ -96,7 +102,7 @@ def iniciar_chat():
             print("Transcrição:", prompt)
 
         mensagens.append({'role': 'user', 'content': prompt})
-        resposta = enviar_msg(client, mensagens, tools)
+        resposta = enviar_msg(client, mensagens, terminal, tools)
 
         print("\n=== RESPOSTA:")
         print(resposta.choices[0].message.content)
